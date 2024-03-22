@@ -52,6 +52,15 @@ export class BaseVideoParser {
 			target.related.continuation = getContinuationFromItems(secondaryContents);
 		}
 
+		target.gameChannelId =
+			videoInfo.metadataRowContainer?.metadataRowContainerRenderer?.rows
+				?.at(0)
+				?.richMetadataRowRenderer?.contents?.at(0)?.richMetadataRenderer?.endpoint
+				?.browseEndpoint?.browseId || null;
+		target.gameName = videoInfo.metadataRowContainer
+			?.metadataRowContainerRenderer?.rows?.at(0)?.richMetadataRowRenderer?.contents?.at(0)
+			?.richMetadataRenderer?.title?.simpleText ?? null;
+
 		return target;
 	}
 

@@ -43,6 +43,8 @@ export class BaseVideo extends Base implements BaseVideoProperties {
 	tags!: string[];
 	/** Continuable of videos / playlists related to this video  */
 	related: VideoRelated;
+	gameChannelId?: string;
+	gameName?: string;
 
 	/** @hidden */
 	constructor(attr: BaseVideoProperties) {
