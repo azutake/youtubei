@@ -61,14 +61,14 @@ export class PlaylistParser {
 
 	static parseVideoContinuation(data: YoutubeRawData): string | undefined {
 		const playlistContents =
-			data.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems;
+			data.onResponseReceivedActions?.[0].appendContinuationItemsAction.continuationItems ?? [];
 
 		return getContinuationFromItems(playlistContents);
 	}
 
 	static parseContinuationVideos(data: YoutubeRawData, client: Client): VideoCompact[] {
 		const playlistContents =
-			data.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems;
+			data.onResponseReceivedActions?.[0].appendContinuationItemsAction.continuationItems ?? [];
 
 		const videos = mapFilter(playlistContents, "playlistVideoRenderer");
 
