@@ -4,6 +4,7 @@ import { BaseChannel } from "../BaseChannel";
 import { PlaylistCompact } from "../PlaylistCompact";
 import { VideoCompact } from "../VideoCompact";
 import { BaseVideoParser } from "./BaseVideoParser";
+import { VideoCaptions } from "./VideoCaptions";
 import { VideoRelated } from "./VideoRelated";
 
 /** @hidden */
@@ -45,6 +46,8 @@ export class BaseVideo extends Base implements BaseVideoProperties {
 	related: VideoRelated;
 	gameChannelId?: string;
 	gameName?: string;
+	/** Captions helper class of this video (if caption exists in this video) */
+	captions!: VideoCaptions | null;
 
 	/** @hidden */
 	constructor(attr: BaseVideoProperties) {

@@ -4,6 +4,7 @@ import { Client } from "../Client";
 import { PlaylistCompact } from "../PlaylistCompact";
 import { VideoCompact } from "../VideoCompact";
 import { BaseVideo } from "./BaseVideo";
+import { VideoCaptions } from "./VideoCaptions";
 
 export class BaseVideoParser {
 	static loadBaseVideo(target: BaseVideo, data: YoutubeRawData): BaseVideo {
@@ -41,7 +42,7 @@ export class BaseVideoParser {
 
 		// related videos
 		const secondaryContents =
-			data[3].response.contents.twoColumnWatchNextResults.secondaryResults?.secondaryResults
+			data.response.contents.twoColumnWatchNextResults.secondaryResults?.secondaryResults
 				.results;
 
 		if (secondaryContents) {
@@ -50,6 +51,21 @@ export class BaseVideoParser {
 				target.client
 			);
 			target.related.continuation = getContinuationFromItems(secondaryContents);
+		}
+
+		target.gameChannelId =
+			videoInfo.metadataRowContainer?.metadataRowContainerRenderer?.rows
+				?.at(0)
+				?.richMetadataRowRenderer?.contents?.at(0)?.richMetadataRenderer?.endpoint
+				?.browseEndpoint?.browseId || null;
+		target.gameName = videoInfo.metadataRowContainer
+			?.metadataRowContainerRenderer?.rows?.at(0)?.richMetadataRowRenderer?.contents?.at(0)
+			?.richMetadataRenderer?.title?.simpleText ?? null;
+		// captions
+		if (videoInfo.captions) {
+			target.captions = new VideoCaptions({ client: target.client, video: target }).load(
+				videoInfo.captions.playerCaptionsTracklistRenderer
+			);
 		}
 
 		target.gameChannelId =
@@ -79,16 +95,15 @@ export class BaseVideoParser {
 	}
 
 	static parseRawData(data: YoutubeRawData): YoutubeRawData {
-		const contents =
-			data[3].response.contents.twoColumnWatchNextResults.results.results.contents;
+		const contents = data.response.contents.twoColumnWatchNextResults.results.results.contents;
 
 		const primaryInfo = contents.find((c: YoutubeRawData) => "videoPrimaryInfoRenderer" in c)
 			.videoPrimaryInfoRenderer;
 		const secondaryInfo = contents.find(
 			(c: YoutubeRawData) => "videoSecondaryInfoRenderer" in c
 		).videoSecondaryInfoRenderer;
-		const videoDetails = data[2].playerResponse.videoDetails;
-		return { ...secondaryInfo, ...primaryInfo, videoDetails };
+		const { videoDetails, captions } = data.playerResponse;
+		return { ...secondaryInfo, ...primaryInfo, videoDetails, captions };
 	}
 
 	private static parseCompactRenderer(
