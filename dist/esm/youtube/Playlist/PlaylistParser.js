@@ -56,13 +56,11 @@ var PlaylistParser = /** @class */ (function () {
         return target;
     };
     PlaylistParser.parseVideoContinuation = function (data) {
-        var _a, _b;
-        var playlistContents = (_b = (_a = data.onResponseReceivedActions) === null || _a === void 0 ? void 0 : _a[0].appendContinuationItemsAction.continuationItems) !== null && _b !== void 0 ? _b : [];
+        var playlistContents = data.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems;
         return getContinuationFromItems(playlistContents);
     };
     PlaylistParser.parseContinuationVideos = function (data, client) {
-        var _a, _b;
-        var playlistContents = (_b = (_a = data.onResponseReceivedActions) === null || _a === void 0 ? void 0 : _a[0].appendContinuationItemsAction.continuationItems) !== null && _b !== void 0 ? _b : [];
+        var playlistContents = data.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems;
         var videos = mapFilter(playlistContents, "playlistVideoRenderer");
         return videos.map(function (video) { return new VideoCompact({ client: client }).load(video); });
     };

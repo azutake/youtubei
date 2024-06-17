@@ -7,25 +7,49 @@ const PlaylistCompact_1 = require("../PlaylistCompact");
 const VideoCompact_1 = require("../VideoCompact");
 class ChannelParser {
     static loadChannel(target, data) {
-        const { channelId, title, avatar, subscriberCountText, } = data.header.c4TabbedHeaderRenderer;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        let channelId, title, avatar, subscriberCountText, videoCountText, tvBanner, mobileBanner, banner;
+        const { c4TabbedHeaderRenderer, pageHeaderRenderer } = data.header;
+        if (c4TabbedHeaderRenderer) {
+            channelId = c4TabbedHeaderRenderer.channelId;
+            title = c4TabbedHeaderRenderer.title;
+            subscriberCountText = (_a = c4TabbedHeaderRenderer.subscriberCountText) === null || _a === void 0 ? void 0 : _a.simpleText;
+            videoCountText = (_d = (_c = (_b = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.videosCountText) === null || _b === void 0 ? void 0 : _b.runs) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.text;
+            avatar = (_e = c4TabbedHeaderRenderer.avatar) === null || _e === void 0 ? void 0 : _e.thumbnails;
+            tvBanner = (_f = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.tvBanner) === null || _f === void 0 ? void 0 : _f.thumbnails;
+            mobileBanner = (_g = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.mobileBanner) === null || _g === void 0 ? void 0 : _g.thumbnails;
+            banner = (_h = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.banner) === null || _h === void 0 ? void 0 : _h.thumbnails;
+        }
+        else {
+            channelId =
+                data.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.endpoint
+                    .browseEndpoint.browseId;
+            title = pageHeaderRenderer.pageTitle;
+            const { metadata, image: imageModel, banner: bannerModel, } = pageHeaderRenderer.content.pageHeaderViewModel;
+            const metadataRow = metadata.contentMetadataViewModel.metadataRows[1];
+            subscriberCountText = metadataRow.metadataParts[0].text.content;
+            videoCountText = metadataRow.metadataParts[1].text.content;
+            avatar = imageModel.decoratedAvatarViewModel.avatar.avatarViewModel.image.sources;
+            banner = bannerModel === null || bannerModel === void 0 ? void 0 : bannerModel.imageBannerViewModel.image.sources;
+        }
         target.id = channelId;
         target.name = title;
-        target.thumbnails = new common_1.Thumbnails().load(avatar.thumbnails);
-        target.videoCount = 0; // data not available
-        target.subscriberCount = subscriberCountText === null || subscriberCountText === void 0 ? void 0 : subscriberCountText.simpleText;
-        const { tvBanner, mobileBanner, banner } = data.header.c4TabbedHeaderRenderer;
-        target.banner = new common_1.Thumbnails().load((banner === null || banner === void 0 ? void 0 : banner.thumbnails) || []);
-        target.tvBanner = new common_1.Thumbnails().load((tvBanner === null || tvBanner === void 0 ? void 0 : tvBanner.thumbnails) || []);
-        target.mobileBanner = new common_1.Thumbnails().load((mobileBanner === null || mobileBanner === void 0 ? void 0 : mobileBanner.thumbnails) || []);
+        target.thumbnails = new common_1.Thumbnails().load(avatar);
+        target.videoCount = videoCountText;
+        target.subscriberCount = subscriberCountText;
+        target.banner = new common_1.Thumbnails().load(banner || []);
+        target.tvBanner = new common_1.Thumbnails().load(tvBanner || []);
+        target.mobileBanner = new common_1.Thumbnails().load(mobileBanner || []);
         target.shelves = ChannelParser.parseShelves(target, data);
         return target;
     }
     static parseShelves(target, data) {
+        var _a;
         const shelves = [];
         const rawShelves = data.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content
             .sectionListRenderer.contents;
         for (const rawShelf of rawShelves) {
-            const shelfRenderer = rawShelf.itemSectionRenderer.contents[0].shelfRenderer;
+            const shelfRenderer = (_a = rawShelf.itemSectionRenderer) === null || _a === void 0 ? void 0 : _a.contents[0].shelfRenderer;
             if (!shelfRenderer)
                 continue;
             const { title, content, subtitle } = shelfRenderer;

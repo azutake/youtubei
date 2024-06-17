@@ -46,13 +46,11 @@ class PlaylistParser {
         return target;
     }
     static parseVideoContinuation(data) {
-        var _a, _b;
-        const playlistContents = (_b = (_a = data.onResponseReceivedActions) === null || _a === void 0 ? void 0 : _a[0].appendContinuationItemsAction.continuationItems) !== null && _b !== void 0 ? _b : [];
+        const playlistContents = data.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems;
         return common_1.getContinuationFromItems(playlistContents);
     }
     static parseContinuationVideos(data, client) {
-        var _a, _b;
-        const playlistContents = (_b = (_a = data.onResponseReceivedActions) === null || _a === void 0 ? void 0 : _a[0].appendContinuationItemsAction.continuationItems) !== null && _b !== void 0 ? _b : [];
+        const playlistContents = data.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems;
         const videos = common_1.mapFilter(playlistContents, "playlistVideoRenderer");
         return videos.map((video) => new VideoCompact_1.VideoCompact({ client }).load(video));
     }

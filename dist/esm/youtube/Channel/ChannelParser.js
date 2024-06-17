@@ -17,28 +17,52 @@ var ChannelParser = /** @class */ (function () {
     function ChannelParser() {
     }
     ChannelParser.loadChannel = function (target, data) {
-        var _a = data.header.c4TabbedHeaderRenderer, channelId = _a.channelId, title = _a.title, avatar = _a.avatar, subscriberCountText = _a.subscriberCountText;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var channelId, title, avatar, subscriberCountText, videoCountText, tvBanner, mobileBanner, banner;
+        var _j = data.header, c4TabbedHeaderRenderer = _j.c4TabbedHeaderRenderer, pageHeaderRenderer = _j.pageHeaderRenderer;
+        if (c4TabbedHeaderRenderer) {
+            channelId = c4TabbedHeaderRenderer.channelId;
+            title = c4TabbedHeaderRenderer.title;
+            subscriberCountText = (_a = c4TabbedHeaderRenderer.subscriberCountText) === null || _a === void 0 ? void 0 : _a.simpleText;
+            videoCountText = (_d = (_c = (_b = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.videosCountText) === null || _b === void 0 ? void 0 : _b.runs) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.text;
+            avatar = (_e = c4TabbedHeaderRenderer.avatar) === null || _e === void 0 ? void 0 : _e.thumbnails;
+            tvBanner = (_f = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.tvBanner) === null || _f === void 0 ? void 0 : _f.thumbnails;
+            mobileBanner = (_g = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.mobileBanner) === null || _g === void 0 ? void 0 : _g.thumbnails;
+            banner = (_h = c4TabbedHeaderRenderer === null || c4TabbedHeaderRenderer === void 0 ? void 0 : c4TabbedHeaderRenderer.banner) === null || _h === void 0 ? void 0 : _h.thumbnails;
+        }
+        else {
+            channelId =
+                data.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.endpoint
+                    .browseEndpoint.browseId;
+            title = pageHeaderRenderer.pageTitle;
+            var _k = pageHeaderRenderer.content.pageHeaderViewModel, metadata = _k.metadata, imageModel = _k.image, bannerModel = _k.banner;
+            var metadataRow = metadata.contentMetadataViewModel.metadataRows[1];
+            subscriberCountText = metadataRow.metadataParts[0].text.content;
+            videoCountText = metadataRow.metadataParts[1].text.content;
+            avatar = imageModel.decoratedAvatarViewModel.avatar.avatarViewModel.image.sources;
+            banner = bannerModel === null || bannerModel === void 0 ? void 0 : bannerModel.imageBannerViewModel.image.sources;
+        }
         target.id = channelId;
         target.name = title;
-        target.thumbnails = new Thumbnails().load(avatar.thumbnails);
-        target.videoCount = 0; // data not available
-        target.subscriberCount = subscriberCountText === null || subscriberCountText === void 0 ? void 0 : subscriberCountText.simpleText;
-        var _b = data.header.c4TabbedHeaderRenderer, tvBanner = _b.tvBanner, mobileBanner = _b.mobileBanner, banner = _b.banner;
-        target.banner = new Thumbnails().load((banner === null || banner === void 0 ? void 0 : banner.thumbnails) || []);
-        target.tvBanner = new Thumbnails().load((tvBanner === null || tvBanner === void 0 ? void 0 : tvBanner.thumbnails) || []);
-        target.mobileBanner = new Thumbnails().load((mobileBanner === null || mobileBanner === void 0 ? void 0 : mobileBanner.thumbnails) || []);
+        target.thumbnails = new Thumbnails().load(avatar);
+        target.videoCount = videoCountText;
+        target.subscriberCount = subscriberCountText;
+        target.banner = new Thumbnails().load(banner || []);
+        target.tvBanner = new Thumbnails().load(tvBanner || []);
+        target.mobileBanner = new Thumbnails().load(mobileBanner || []);
         target.shelves = ChannelParser.parseShelves(target, data);
         return target;
     };
     ChannelParser.parseShelves = function (target, data) {
         var e_1, _a;
+        var _b;
         var shelves = [];
         var rawShelves = data.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content
             .sectionListRenderer.contents;
         try {
             for (var rawShelves_1 = __values(rawShelves), rawShelves_1_1 = rawShelves_1.next(); !rawShelves_1_1.done; rawShelves_1_1 = rawShelves_1.next()) {
                 var rawShelf = rawShelves_1_1.value;
-                var shelfRenderer = rawShelf.itemSectionRenderer.contents[0].shelfRenderer;
+                var shelfRenderer = (_b = rawShelf.itemSectionRenderer) === null || _b === void 0 ? void 0 : _b.contents[0].shelfRenderer;
                 if (!shelfRenderer)
                     continue;
                 var title = shelfRenderer.title, content = shelfRenderer.content, subtitle = shelfRenderer.subtitle;
