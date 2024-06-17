@@ -5,6 +5,7 @@ on:
         branches:
             - development
             - with-game
+    workflow_dispatch:
 
 jobs:
     publish_dev:
