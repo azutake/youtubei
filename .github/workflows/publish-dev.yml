@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - development
+            - with-game
 
 jobs:
     publish_dev:
