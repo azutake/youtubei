@@ -41,6 +41,8 @@ export declare class BaseVideo extends Base implements BaseVideoProperties {
     tags: string[];
     /** Continuable of videos / playlists related to this video  */
     related: VideoRelated;
+    gameChannelId?: string;
+    gameName?: string;
     /** Captions helper class of this video (if caption exists in this video) */
     captions: VideoCaptions | null;
     /** @hidden */
