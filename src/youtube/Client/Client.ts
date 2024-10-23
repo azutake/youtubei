@@ -1,6 +1,6 @@
 import { RequestInit } from "node-fetch";
 
-import { HTTP, YoutubeRawData } from "../../common";
+import { HTTP, OAuthOptions } from "../../common";
 import { Caption } from "../Caption";
 import { Channel } from "../Channel";
 import { LiveVideo } from "../LiveVideo";
@@ -14,11 +14,11 @@ import {
 	INNERTUBE_CLIENT_NAME,
 	INNERTUBE_CLIENT_VERSION,
 	I_END_POINT,
-	WATCH_END_POINT,
 } from "../constants";
 
 export type ClientOptions = {
 	initialCookie: string;
+	oauth: OAuthOptions;
 	/** Optional options for http client */
 	fetchOptions: Partial<RequestInit>;
 	/** Optional options passed when sending a request to youtube (context.client) */
@@ -35,6 +35,7 @@ export class Client {
 	constructor(options: Partial<ClientOptions> = {}) {
 		this.options = {
 			initialCookie: "",
+			oauth: { enabled: false },
 			fetchOptions: {},
 			...options,
 			youtubeClientOptions: {
@@ -109,13 +110,12 @@ export class Client {
 
 	/** Get video information by video id or URL */
 	async getVideo<T extends Video | LiveVideo | undefined>(videoId: string): Promise<T> {
-		const response = await this.http.get(`${WATCH_END_POINT}`, {
-			params: { v: videoId, pbj: "1" },
-		});
+		const nextPromise = this.http.post(`${I_END_POINT}/next`, { data: { videoId } });
+		const playerPromise = this.http.post(`${I_END_POINT}/player`, { data: { videoId } });
 
-		const data = Array.isArray(response.data)
-			? response.data.reduce<YoutubeRawData>((prev, curr) => ({ ...prev, ...curr }), {})
-			: response.data;
+		const [nextResponse, playerResponse] = await Promise.all([nextPromise, playerPromise]);
+
+		const data = { response: nextResponse.data, playerResponse: playerResponse.data };
 
 		if (
 			!data.response?.contents?.twoColumnWatchNextResults.results.results.contents ||
