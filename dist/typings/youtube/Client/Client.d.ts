@@ -1,5 +1,4 @@
-import { RequestInit } from "node-fetch";
-import { HTTP, OAuthOptions } from "../../common";
+import { HTTP, HTTPOptions, OAuthProps } from "../../common";
 import { Caption } from "../Caption";
 import { Channel } from "../Channel";
 import { LiveVideo } from "../LiveVideo";
@@ -7,21 +6,15 @@ import { MixPlaylist } from "../MixPlaylist";
 import { Playlist } from "../Playlist";
 import { SearchOptions, SearchResult, SearchResultItem } from "../SearchResult";
 import { Video } from "../Video";
-export declare type ClientOptions = {
-    initialCookie: string;
-    oauth: OAuthOptions;
-    /** Optional options for http client */
-    fetchOptions: Partial<RequestInit>;
-    /** Optional options passed when sending a request to youtube (context.client) */
-    youtubeClientOptions: Record<string, string>;
-};
+export declare type ClientOptions = HTTPOptions;
 /** Youtube Client */
 export declare class Client {
     /** @hidden */
     http: HTTP;
     /** @hidden */
-    options: ClientOptions;
+    options: HTTPOptions;
     constructor(options?: Partial<ClientOptions>);
+    get oauth(): OAuthProps;
     /**
      * Searches for videos / playlists / channels
      *

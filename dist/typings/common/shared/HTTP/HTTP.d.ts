@@ -3,11 +3,16 @@ export declare type OAuthOptions = {
     enabled: boolean;
     refreshToken?: string;
 };
-declare type OAuthProps = {
+export declare type OAuthProps = {
     token: string | null;
     expiresAt: Date | null;
+    refreshToken?: string;
 };
-declare type HTTPOptions = {
+export declare type PotOptions = {
+    token: string;
+    visitorData: string;
+};
+export declare type HTTPOptions = {
     apiKey: string;
     baseUrl: string;
     clientName: string;
@@ -16,6 +21,7 @@ declare type HTTPOptions = {
     youtubeClientOptions?: Record<string, unknown>;
     initialCookie?: string;
     oauth?: OAuthOptions;
+    pot?: PotOptions;
 };
 declare type Response<T = any> = {
     data: T;
@@ -37,6 +43,7 @@ export declare class HTTP {
     private defaultFetchOptions;
     private defaultClientOptions;
     private authorizationPromise;
+    private pot?;
     oauth: OAuthOptions & OAuthProps;
     constructor(options: HTTPOptions);
     get(path: string, options?: Partial<Options>): Promise<Response>;
